@@ -73,7 +73,7 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
                 armor_obj.TLcorner.x, armor_obj.TLcorner.y, armor_obj.width, armor_obj.height);
 
             double real_width = 0.705;
-            double real_height = 0.52;
+            double real_height = 0.520;
             double half_width = real_width / 2.0;
             double half_height = real_height / 2.0;
 
@@ -85,13 +85,13 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
 
             // 相机内参
             static const cv::Mat camera_matrix =
-                (cv::Mat_<double>(3, 3) << 381.36, 0.0, 320.0,
-                 0.0, 381.36, 240.0,
+                (cv::Mat_<double>(3, 3) << 554.383, 0.0, 320.0,
+                 0.0, 554.383, 320.0,
                  0.0, 0.0, 1.0);
             static const cv::Mat dist_coeffs = cv::Mat::zeros(1, 5, CV_64F);
 
             cv::Mat rvec, tvec;
-            
+
             // 2. 求解 PnP
             bool success = cv::solvePnP(
                 object_3d_points,
@@ -101,24 +101,23 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
                 rvec,
                 tvec,
                 false,
-                cv::SOLVEPNP_IPPE
-            );
+                cv::SOLVEPNP_IPPE);
 
             if (success)
             {
                 tvec.convertTo(tvec, CV_64F);
-                
-                double x_c = tvec.at<double>(0); 
-                double y_c = tvec.at<double>(1); 
+
+                double x_c = tvec.at<double>(0);
+                double y_c = tvec.at<double>(1);
                 double z_c = tvec.at<double>(2);
 
                 double gazebo_x = x_c;
                 double gazebo_y = z_c;
-                double gazebo_z = -y_c;
+                double gazebo_z = -y_c - 0.2;
 
                 RCLCPP_INFO(this->get_logger(), "[Gazebo]:[x=%.2f, y=%.2f, z=%.2f]",
-                    gazebo_x, gazebo_y, gazebo_z);
-                
+                            gazebo_x, gazebo_y, gazebo_z);
+
                 double bullet_speed = 15.0;
                 double gravity_a = 9.8;
 

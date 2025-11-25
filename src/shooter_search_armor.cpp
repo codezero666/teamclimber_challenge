@@ -72,16 +72,11 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
             std::vector<cv::Point2f> opencv_corners = shape_tools::calculateArmor2DCorners(
                 armor_obj.TLcorner.x, armor_obj.TLcorner.y, armor_obj.width, armor_obj.height);
 
-            double real_width = 0.705;
-            double real_height = 0.520;
+            // 物体仿真大小
             double half_width = real_width / 2.0;
             double half_height = real_height / 2.0;
 
-            std::vector<cv::Point3f> object_3d_points;
-            object_3d_points.emplace_back(-half_width, -half_height, 0); // TL (左上)
-            object_3d_points.emplace_back(half_width, -half_height, 0);  // TR (右上)
-            object_3d_points.emplace_back(half_width, half_height, 0);   // BR (右下)
-            object_3d_points.emplace_back(-half_width, half_height, 0);  // BL (左下)
+            std::vector<cv::Point3f> object_3d_points = shape_tools::calculateArmor3DCorners(half_width, half_height);
 
             // 相机内参
             static const cv::Mat camera_matrix =
@@ -117,9 +112,6 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
 
                 RCLCPP_INFO(this->get_logger(), "[Gazebo]:[x=%.2f, y=%.2f, z=%.2f]",
                             gazebo_x, gazebo_y, gazebo_z);
-
-                double bullet_speed = 15.0;
-                double gravity_a = 9.8;
 
                 double TanElevation = shape_tools::calculateLowTanElevation(
                     gazebo_x, gazebo_y, gazebo_z, bullet_speed, gravity_a);

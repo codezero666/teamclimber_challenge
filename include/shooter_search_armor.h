@@ -59,6 +59,15 @@ private:
     std::unique_ptr<YOLOv11> model;
 
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr Image_sub;
+
+    //=====================参数管理=======================
+    // 装甲板仿真大小
+    double real_width = 0.705;
+    double real_height = 0.520;
+
+    // 弹丸参数
+    double bullet_speed = 15.0; // 弹丸初速度
+    double gravity_a = 9.8;     // 重力加速度
 };
 
 #endif

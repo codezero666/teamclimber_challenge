@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <cmath>
+#include <vector>
 #include <opencv2/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <geometry_msgs/msg/point.hpp>
@@ -30,6 +31,9 @@ public:
 
     // 求出装甲板的四个角点坐标
     static std::vector<cv::Point2f> calculateArmor2DCorners(float bound_tlx, float bound_tly, float width, float height);
+
+    // 定义四个角点的三维坐标
+    static std::vector<cv::Point3f> calculateArmor3DCorners(float half_width, float half_height);
 
     // 计算低弹道仰角
     static double calculateLowTanElevation(double x, double y, double z, double v0, double g);

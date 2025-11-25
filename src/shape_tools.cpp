@@ -61,6 +61,19 @@ std::vector<cv::Point2f> shape_tools::calculateArmor2DCorners(float bound_tlx, f
   return points;
 }
 
+std::vector<cv::Point3f> shape_tools::calculateArmor3DCorners(float half_width, float half_height)
+{
+  std::vector<cv::Point3f> points;
+
+  // 左上、右上、右下、左下（顺时针）
+  points.emplace_back(-half_width, -half_height, 0); // 左上
+  points.emplace_back(half_width, -half_height, 0);  // 右上
+  points.emplace_back(half_width, half_height, 0);   // 右下
+  points.emplace_back(-half_width, half_height, 0);  // 左下
+
+  return points;
+}
+
 double shape_tools::calculateLowTanElevation(double x, double y, double z, double v0, double g)
 {
   double r = std::sqrt(x * x + y * y);

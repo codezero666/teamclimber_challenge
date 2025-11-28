@@ -19,7 +19,7 @@ void shooter_node::handle_armor_shoot(const std::shared_ptr<referee_pkg::srv::Hi
     this->gravity_a = request->g;
 
     RCLCPP_INFO(this->get_logger(), "【Service】Yaw:%.2f Pitch:%.2f", latest_yaw, latest_pitch);
-
+    
     // 返回
     response->yaw = latest_yaw;
     response->pitch = latest_pitch;
@@ -169,6 +169,7 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
                 std::lock_guard<std::mutex> lock(data_mutex_); // 解锁
                 latest_yaw = final_yaw;
                 latest_pitch = final_pitch;
+                RCLCPP_INFO(this->get_logger(), "【角度制】Yaw:%.2f Pitch:%.2f", latest_yaw*180.0/3.14, latest_pitch*180.0/3.14);
 
                 //================结果可视化（PnP反解）===================
                 double aim_xc = hit_x;

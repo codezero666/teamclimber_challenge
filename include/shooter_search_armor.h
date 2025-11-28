@@ -14,6 +14,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/image_encodings.hpp>
+#include <std_msgs/msg/header.hpp>
 
 #include "referee_pkg/srv/hit_armor.hpp"
 #include "shape_tools.h"
@@ -200,9 +201,9 @@ private:
     double latest_yaw = 0.0;   // 最新的偏航角
     double latest_pitch = 0.0; // 最新的俯仰角
     double latest_roll = 0.0;  // 最新的翻滚角
+    double gravity_a = 9.8;    // 重力加速度
 
     // 参数管理
-    double gravity_a = 9.8;                                            // 重力加速度
     double fx = 554.383, fy = 554.383, cx = 320.0, cy = 320.0; // 相机内参
     double real_width = 0.705;                                 // 装甲板真实宽度 (米)
     double real_height = 0.520;                                // 装甲板真实高度 (米)

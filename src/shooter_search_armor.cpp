@@ -17,6 +17,7 @@ void shooter_node::handle_armor_shoot(const std::shared_ptr<referee_pkg::srv::Hi
     
     // 请求
     this->gravity_a = request->g;
+    this->latest_header = request->header;
 
     RCLCPP_INFO(this->get_logger(), "【Service】Yaw:%.2f Pitch:%.2f", latest_yaw, latest_pitch);
     

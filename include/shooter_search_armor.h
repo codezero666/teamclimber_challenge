@@ -202,6 +202,8 @@ private:
     double latest_pitch = 0.0; // 最新的俯仰角
     double latest_roll = 0.0;  // 最新的翻滚角
     double gravity_a = 9.8;    // 重力加速度
+    std_msgs::msg::Header latest_header; //时间戳
+    std::vector<cv::Point2f> custom_model_points;
 
     // 参数管理
     double fx = 554.383, fy = 554.383, cx = 320.0, cy = 320.0; // 相机内参

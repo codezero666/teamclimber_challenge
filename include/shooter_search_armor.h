@@ -202,7 +202,6 @@ private:
     double latest_roll = 0.0;  // 最新的翻滚角
 
     // 参数管理
-    std::vector<>
     double gravity_a = 9.8;                                            // 重力加速度
     double fx = 554.383, fy = 554.383, cx = 320.0, cy = 320.0; // 相机内参
     double real_width = 0.705;                                 // 装甲板真实宽度 (米)

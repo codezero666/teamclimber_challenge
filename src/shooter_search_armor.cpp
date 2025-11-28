@@ -9,16 +9,21 @@ struct DetectedArmor
 };
 
 // 服务端回调函数
-void handle_armor_shoot(const std::shared_ptr<referee_pkg::srv::HitArmor::Request> request,
+void shooter_node::handle_armor_shoot(const std::shared_ptr<referee_pkg::srv::HitArmor::Request> request,
                         std::shared_ptr<referee_pkg::srv::HitArmor::Response> response)
 {
+    // 上锁，保护共享变量
+    std::lock_guard<std::mutex> lock(data_mutex_);
+    
+    // 请求
     this->gravity_a = request->g;
 
-    RCLCPP_INFO(this->get_logger(), "Yaw:%.2f Pitch:%.2f", latest_yaw, latest_pitch);
+    RCLCPP_INFO(this->get_logger(), "【Service】Yaw:%.2f Pitch:%.2f", latest_yaw, latest_pitch);
 
-    response->latest_yaw;
-    response->latest_pitch;
-    response->latest_roll;
+    // 返回
+    response->yaw = atest_yaw;
+    response->pitch = latest_pitch;
+    response->roll = latest_roll;
 };
 
 // 图像回调函数
@@ -161,6 +166,7 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
                 double final_yaw = std::atan2(hit_y, hit_x);
 
                 // 记录欧拉角用于返回客户端
+                std::lock_guard<std::mutex> lock(data_mutex_); // 解锁
                 latest_yaw = final_yaw;
                 latest_pitch = final_pitch;
 

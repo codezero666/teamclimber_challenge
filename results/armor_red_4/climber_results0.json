@@ -1,0 +1,14 @@
+{
+    "RaceStage0": {
+        "average_numdetecterror": 0.22,
+        "average_orientationerror": 1.67,
+        "fps": 45,
+        "max_numdetecterror": 0.221,
+        "max_orientationerror": 1.684,
+        "run_id": "537beef5-d462-4e27-a522-e83f0fb0e2ee",
+        "score": 0.0,
+        "target_type": "armor_red_4",
+        "timestamp": "2025-11-28T22:45:11Z"
+    },
+    "team_name": "climber"
+}

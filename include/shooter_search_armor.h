@@ -204,7 +204,7 @@ private:
     double real_width = 0.705;                                 // 装甲板真实宽度 (米)
     double real_height = 0.520;                                // 装甲板真实高度 (米)
     double bullet_speed = 10.0;                                // 子弹初速度 (米/秒)
-    double gravity_a = 9.8;                                    // 重力加速度
+    double g = 9.8;                                            // 重力加速度
     double system_latency = 0.02;                              // 系统总延迟 (图像处理+通信耗时)
 };
 

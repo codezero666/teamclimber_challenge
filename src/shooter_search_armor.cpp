@@ -12,7 +12,10 @@ struct DetectedArmor
 void handle_armor_shoot(const std::shared_ptr<referee_pkg::srv::HitArmor::Request> request,
                         std::shared_ptr<referee_pkg::srv::HitArmor::Response> response)
 {
-    response->;
+    request->g
+    response->latest_yaw;
+    response->latest_pitch;
+    response->latest_roll;
 };
 
 // 图像回调函数
@@ -138,7 +141,7 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
                     // 计算目标在地面的投影到原点的距离
                     dist_horiz = std::sqrt(hit_x * hit_x + hit_y * hit_y);
 
-                    BallisticSolution sol = ballistic_solver.solve(dist_horiz, hit_z, bullet_speed, gravity_a);
+                    BallisticSolution sol = ballistic_solver.solve(dist_horiz, hit_z, bullet_speed, g);
 
                     if (sol.has_solution)
                     {

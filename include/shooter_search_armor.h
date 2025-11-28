@@ -1,6 +1,7 @@
 #ifndef SHOOTER_SEARCH_ARMOR_H
 #define SHOOTER_SEARCH_ARMOR_H
 
+#include <mutex>
 #include <string>
 #include <memory>
 #include <cmath>
@@ -194,17 +195,19 @@ private:
     Kalman1D pred_z;
     BallisticSolver ballistic_solver;
 
-    // 记录欧拉角
+    // 共享数据
+    std::mutex data_mutex_;    // 添加互斥锁
     double latest_yaw = 0.0;   // 最新的偏航角
     double latest_pitch = 0.0; // 最新的俯仰角
     double latest_roll = 0.0;  // 最新的翻滚角
 
     // 参数管理
+    std::vector<>
+    double gravity_a = 9.8;                                            // 重力加速度
     double fx = 554.383, fy = 554.383, cx = 320.0, cy = 320.0; // 相机内参
     double real_width = 0.705;                                 // 装甲板真实宽度 (米)
     double real_height = 0.520;                                // 装甲板真实高度 (米)
     double bullet_speed = 10.0;                                // 子弹初速度 (米/秒)
-    double g = 9.8;                                            // 重力加速度
     double system_latency = 0.02;                              // 系统总延迟 (图像处理+通信耗时)
 };
 

@@ -12,7 +12,10 @@ struct DetectedArmor
 void handle_armor_shoot(const std::shared_ptr<referee_pkg::srv::HitArmor::Request> request,
                         std::shared_ptr<referee_pkg::srv::HitArmor::Response> response)
 {
-    request->g
+    this->gravity_a = request->g;
+
+    RCLCPP_INFO(this->get_logger(), "Yaw:%.2f Pitch:%.2f", latest_yaw, latest_pitch);
+
     response->latest_yaw;
     response->latest_pitch;
     response->latest_roll;
@@ -141,7 +144,7 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
                     // 计算目标在地面的投影到原点的距离
                     dist_horiz = std::sqrt(hit_x * hit_x + hit_y * hit_y);
 
-                    BallisticSolution sol = ballistic_solver.solve(dist_horiz, hit_z, bullet_speed, g);
+                    BallisticSolution sol = ballistic_solver.solve(dist_horiz, hit_z, bullet_speed, gravity_a);
 
                     if (sol.has_solution)
                     {
@@ -156,8 +159,6 @@ void shooter_node::callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg)
 
                 // 计算偏航角
                 double final_yaw = std::atan2(hit_y, hit_x);
-
-                RCLCPP_INFO(this->get_logger(), "Yaw:%.2f Pitch:%.2f Time:%.2f", final_yaw, final_pitch, t_flight);
 
                 // 记录欧拉角用于返回客户端
                 latest_yaw = final_yaw;

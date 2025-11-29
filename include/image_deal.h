@@ -17,6 +17,7 @@
 #include <std_msgs/msg/header.hpp>
 
 #include "YOLOv11.h"
+#include "referee_pkg/msg/race_stage.hpp"
 
 extern Logger logger;
 
@@ -47,6 +48,11 @@ public:
         "/camera/image_raw", 10,
         bind(&vision_node::callback_camera, this, std::placeholders::_1));
 
+    // 订阅阶段切换话题
+    // State_sub = this->create_subscription<referee_pkg::msg::RaceStage>(
+    //      "/referee/race_stage", 10, 
+    //      bind(&vision_node::callback_stage, this, std::placeholders::_1));
+
     // 发布识别信息话题
     Target_pub = this->create_publisher<referee_pkg::msg::MultiObject>(
         "/vision/target", 10);
@@ -60,10 +66,15 @@ public:
 private:
   // 回调函数
   void callback_camera(sensor_msgs::msg::Image::SharedPtr msg);
+  void callback_stage(referee_pkg::msg::RaceStage);
+
+  // 全局参数
+  int latest_stage = 0;
 
   // 声明模型、订阅者、发布者
   std::unique_ptr<YOLOv11> model;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr Image_sub;
+  //rclcpp::Subscription<referee_pkg::msg::RaceStage>::SharedPtr State_sub;
   rclcpp::Publisher<referee_pkg::msg::MultiObject>::SharedPtr Target_pub;
 
   // sphere参数
@@ -71,11 +82,13 @@ private:
   cv::Scalar sphere_red_high1{10, 255, 255};
   cv::Scalar sphere_red_low2 {170, 120, 70};
   cv::Scalar sphere_red_high2{180, 255, 255};
+  cv::Scalar sphere_white_low{0, 0, 160};
+  cv::Scalar sphere_white_high{20, 20, 190};
 
   // rect参数
   // cyan的HSV 范围 //H在OpenCV是0~180，所以80~105是偏青色一段
-  cv::Scalar rect_cyan_low{70, 60, 60};
-  cv::Scalar rect_cyan_high{120, 255, 255};
+  cv::Scalar rect_cyan_low {70, 60, 60};
+  cv::Scalar rect_cyan_high {120, 255, 255};
 
   double rect_min_area = 100.0;   // 矩形最小面积
   double rect_max_ratio = 8.0;    // 最大长宽比（太细长不要），ratio=长边/短边

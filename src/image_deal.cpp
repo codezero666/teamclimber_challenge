@@ -186,7 +186,125 @@ void vision_node::callback_camera(sensor_msgs::msg::Image::SharedPtr msg)
         }
       }
     }
-    /*===========================arrow===========================zpzwt*/
+
+    /*===========================Arrow===========================ztw*/
+    cv::Mat arrowred_mask;
+    arrowred_mask = mask1 | mask2;
+
+    // 找轮廓
+    std::vector<std::vector<cv::Point>> arrowred_contours;
+    cv::findContours(arrowred_mask, arrowred_contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+    // 只保留最像箭头的那个轮廓（面积大且细长）
+    int best_idx = -1;
+    double best_score = 0.0; // 这里用 ratio 做一个简单打分
+
+    for (size_t i = 0; i < arrowred_contours.size(); i++)
+    {
+      double area = cv::contourArea(arrowred_contours[i]);
+      if (area < 50.0) // 太小的噪声过滤掉，阈值按需要调
+        continue;
+
+      cv::RotatedRect rr = cv::minAreaRect(arrowred_contours[i]);
+      float w = rr.size.width;
+      float h = rr.size.height;
+      if (w < 5 || h < 5) // 太细太小的也过滤
+        continue;
+
+      float long_side = std::max(w, h);
+      float short_side = std::min(w, h);
+      float ratio = long_side / short_side; // 长宽比
+
+      if (ratio < 1.5f) // 箭头一般比较细长，长宽比至少大于 2，视情况调
+         continue;
+
+      double score = ratio; // 细长程度兼顾
+      if (score > best_score)
+      {
+        best_score = score;
+        best_idx = static_cast<int>(i);
+      }
+    }
+
+    int valid_arrows = 0;
+
+    if (best_idx >= 0)
+    {
+      valid_arrows++;
+
+      const auto &cnt = arrowred_contours[best_idx];
+      cv::RotatedRect rr = cv::minAreaRect(cnt);
+      float w = rr.size.width;
+      float h = rr.size.height;
+      float ratio = (w > h ? w / h : h / w);
+
+      // minAreaRect 的 4 个角点
+      cv::Point2f rr_pts[4];
+      rr.points(rr_pts);
+      std::vector<cv::Point2f> pts(rr_pts, rr_pts + 4);
+
+      // 排序成：TL TR BR BL
+      std::sort(pts.begin(), pts.end(),
+                [](const cv::Point2f &a, const cv::Point2f &b)
+                { return a.y < b.y; });
+
+      std::vector<cv::Point2f> top{pts[0], pts[1]};
+      std::vector<cv::Point2f> bottom{pts[2], pts[3]};
+
+      std::sort(top.begin(), top.end(),
+                [](const cv::Point2f &a, const cv::Point2f &b)
+                { return a.x < b.x; });
+      std::sort(bottom.begin(), bottom.end(),
+                [](const cv::Point2f &a, const cv::Point2f &b)
+                { return a.x < b.x; });
+
+      cv::Point2f tl = top[0], tr = top[1];
+      cv::Point2f bl = bottom[0], br = bottom[1];
+
+      std::vector<cv::Point2f> arrow_points = {tl, tr, br, bl};
+
+      // 画外接矩形
+      for (int j = 0; j < 4; j++)
+      {
+        cv::line(result_image,
+                 arrow_points[j],
+                 arrow_points[(j + 1) % 4],
+                 cv::Scalar(125, 125, 125),
+                 4);
+      }
+
+      // 画点和编号
+      for (int j = 0; j < 4; j++)
+      {
+        cv::circle(result_image, arrow_points[j], 7, point_colors[j], -1);
+        cv::circle(result_image, arrow_points[j], 7, cv::Scalar(255, 255, 255), 2);
+
+        std::string point_text = std::to_string(j + 1);
+        cv::Point text_pos(arrow_points[j].x + 10, arrow_points[j].y - 10);
+
+        cv::putText(result_image, point_text, text_pos,
+                    cv::FONT_HERSHEY_SIMPLEX, 0.8,
+                    cv::Scalar(255, 255, 255), 4);
+        cv::putText(result_image, point_text, text_pos,
+                    cv::FONT_HERSHEY_SIMPLEX, 0.8,
+                    point_colors[j], 2);
+
+        RCLCPP_INFO(this->get_logger(),
+                    "Arrow_0 %d, Point(%s): (%.1f, %.1f)",
+                    valid_arrows, point_names[j].c_str(),
+                    arrow_points[j].x, arrow_points[j].y);
+      }
+
+      RCLCPP_INFO(this->get_logger(),
+                  "Found Arrow %d: center=(%.1f,%.1f) w=%.1f h=%.1f ratio=%.2f angle=%.1f",
+                  valid_arrows, rr.center.x, rr.center.y,
+                  w, h, ratio, rr.angle);
+
+      DetectedObject arrow_obj;
+      arrow_obj.type = "arrow";
+      arrow_obj.points = arrow_points;
+      all_detected_objects.push_back(arrow_obj);
+    }
 
     /*===========================armor===========================zp*/
     // // 记录开始时间

@@ -82,8 +82,8 @@ private:
   cv::Scalar sphere_red_high1{10, 255, 255};
   cv::Scalar sphere_red_low2 {170, 120, 70};
   cv::Scalar sphere_red_high2{180, 255, 255};
-  cv::Scalar sphere_white_low{0, 0, 160};
-  cv::Scalar sphere_white_high{20, 20, 190};
+  cv::Scalar arrow_red_low{0, 200, 70};
+  cv::Scalar arrow_red_high{20, 255, 255};
 
   // rect参数
   // cyan的HSV 范围 //H在OpenCV是0~180，所以80~105是偏青色一段

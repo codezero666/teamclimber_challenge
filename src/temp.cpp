@@ -48,10 +48,10 @@ for (size_t i = 0; i < contours.size(); i++)
     cv::circle(result_image, center, 3, cv::Scalar(0, 0, 255), -1);                       // 红色圆心
 
     // 显示半径信息
-    // std::string info_text = "R:" + std::to_string((int)radius);
-    // cv::putText(
-    //     result_image, info_text, cv::Point(center.x - 15, center.y + 5),
-    //     cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2);
+    std::string info_text = "R:" + std::to_string((int)radius);
+    cv::putText(
+        result_image, info_text, cv::Point(center.x - 15, center.y + 5),
+        cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2);
 
     // 绘制球体上的四个点
     for (int j = 0; j < 4; j++)

@@ -16,6 +16,7 @@
 #include <sensor_msgs/image_encodings.hpp>
 #include <std_msgs/msg/header.hpp>
 
+#include "referee_pkg/msg/race_stage.hpp"
 #include "referee_pkg/srv/hit_armor.hpp"
 #include "shape_tools.h"
 #include "YOLOv11.h"
@@ -171,6 +172,10 @@ public:
         Image_sub = this->create_subscription<sensor_msgs::msg::Image>(
             "/camera/image_raw", 10, std::bind(&shooter_node::callback_search_armor, this, std::placeholders::_1));
 
+        // 订阅阶段切换话题
+        State_sub = this->create_subscription<referee_pkg::msg::RaceStage>(
+            "/referee/race_stage", 10, std::bind(&shooter_node::callback_stage, this, std::placeholders::_1));
+
         // 创建服务端
         armor_shooter_server_ = this->create_service<referee_pkg::srv::HitArmor>(
             "/referee/hit_arror", std::bind(&shooter_node::handle_armor_shoot, this, std::placeholders::_1, std::placeholders::_2));
@@ -179,15 +184,17 @@ public:
     ~shooter_node() { cv::destroyWindow("Detection Result"); }
 
 private:
-    // 回调函数
+    // 回调函数声明
     void handle_armor_shoot(const std::shared_ptr<referee_pkg::srv::HitArmor::Request> request,
                             std::shared_ptr<referee_pkg::srv::HitArmor::Response> response);
     void callback_search_armor(sensor_msgs::msg::Image::SharedPtr msg);
+    void callback_stage(referee_pkg::msg::RaceStage::SharedPtr msg);
 
     // 声明模型、TensorRT日志、订阅者、服务端
     std::unique_ptr<YOLOv11> model;
     Logger logger_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr Image_sub;
+    rclcpp::Subscription<referee_pkg::msg::RaceStage>::SharedPtr State_sub;
     rclcpp::Service<referee_pkg::srv::HitArmor>::SharedPtr armor_shooter_server_;
 
     // 定义三个轴的卡尔曼预测器 (X, Y, Z 独立预测)
@@ -202,14 +209,15 @@ private:
     double latest_pitch = 0.0; // 最新的俯仰角
     double latest_roll = 0.0;  // 最新的翻滚角
     double gravity_a = 9.8;    // 重力加速度
-    std_msgs::msg::Header latest_header; //时间戳
+    int latest_stage = 0;
+    std_msgs::msg::Header latest_header; // 时间戳
     std::vector<cv::Point2f> custom_model_points;
 
     // 参数管理
-    double fx = 554.383, fy = 554.383, cx = 320.0, cy = 320.0; // 相机内参
+    double fx = 1108.77, fy = 1108.77, cx = 640.0, cy = 640.0; // 相机内参
     double real_width = 0.705;                                 // 装甲板真实宽度 (米)
     double real_height = 0.520;                                // 装甲板真实高度 (米)
-    double bullet_speed = 10.0;                                // 子弹初速度 (米/秒)
+    double bullet_speed = 25.0;                                // 子弹初速度 (米/秒)
     double system_latency = 0.02;                              // 系统总延迟 (图像处理+通信耗时)
 };
 

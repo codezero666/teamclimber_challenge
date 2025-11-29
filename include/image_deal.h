@@ -46,12 +46,12 @@ public:
     // 订阅摄像头话题
     Image_sub = this->create_subscription<sensor_msgs::msg::Image>(
         "/camera/image_raw", 10,
-        bind(&vision_node::callback_camera, this, std::placeholders::_1));
+        std::bind(&vision_node::callback_camera, this, std::placeholders::_1));
 
     // 订阅阶段切换话题
-    // State_sub = this->create_subscription<referee_pkg::msg::RaceStage>(
-    //      "/referee/race_stage", 10, 
-    //      bind(&vision_node::callback_stage, this, std::placeholders::_1));
+    State_sub = this->create_subscription<referee_pkg::msg::RaceStage>(
+         "/referee/race_stage", 10, 
+         std::bind(&vision_node::callback_stage, this, std::placeholders::_1));
 
     // 发布识别信息话题
     Target_pub = this->create_publisher<referee_pkg::msg::MultiObject>(
@@ -66,7 +66,7 @@ public:
 private:
   // 回调函数
   void callback_camera(sensor_msgs::msg::Image::SharedPtr msg);
-  void callback_stage(referee_pkg::msg::RaceStage);
+  void callback_stage(referee_pkg::msg::RaceStage::SharedPtr msg);
 
   // 全局参数
   int latest_stage = 0;
@@ -74,7 +74,7 @@ private:
   // 声明模型、订阅者、发布者
   std::unique_ptr<YOLOv11> model;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr Image_sub;
-  //rclcpp::Subscription<referee_pkg::msg::RaceStage>::SharedPtr State_sub;
+  rclcpp::Subscription<referee_pkg::msg::RaceStage>::SharedPtr State_sub;
   rclcpp::Publisher<referee_pkg::msg::MultiObject>::SharedPtr Target_pub;
 
   // sphere参数
